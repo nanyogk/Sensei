@@ -1,0 +1,30 @@
+{
+  "extName": {
+    "message": "Sensei on my Side",
+    "description": "The name of the extension"
+  },
+  "extDescription": {
+    "message": "Dreaming of reading English news every morning or training your English with daily news? Eiko-sensei is here in your side panel!",
+    "description": "The description of the extension"
+  },
+  "btnCoachMe": {
+    "message": "📖 Coach me about this page!",
+    "description": "Text for the quick page coaching button"
+  },
+  "btnMoreVocab": {
+    "message": "➕ More Vocab",
+    "description": "Text for the more vocabulary button"
+  },
+  "chatPlaceholder": {
+    "message": "Ask Sensei anything in $LEARN$ (will translate to $MOTHER$)...",
+    "description": "Placeholder for the Q&A input field",
+    "placeholders": {
+      "learn": {
+        "content": "$1"
+      },
+      "mother": {
+        "content": "$2"
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "extName": {
+    "message": "Sensei ao meu Lado",
+    "description": "O nome da extensão"
+  },
+  "extDescription": {
+    "message": "Eiko-sensei: uma fofa tutora de idiomas de IA em estilo pixel-art no seu painel lateral! 100% privada e offline com Gemini Nano.",
+    "description": "A descrição da extensão"
+  },
+  "btnCoachMe": {
+    "message": "📖 Ensine-me sobre esta página!",
+    "description": "Texto para o botão de treinamento rápido da página"
+  },
+  "btnMoreVocab": {
+    "message": "➕ Mais Vocabulário",
+    "description": "Texto para o botão de mais vocabulário"
+  },
+  "chatPlaceholder": {
+    "message": "Pergunte qualquer coisa à Sensei em $LEARN$ (será traduzido para o $MOTHER$)...",
+    "description": "Espaço reservado para o campo de entrada de perguntas e respostas",
+    "placeholders": {
+      "learn": {
+        "content": "$1"
+      },
+      "mother": {
+        "content": "$2"
+      }
+    }
+  }
+}

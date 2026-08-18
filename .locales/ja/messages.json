@@ -1,0 +1,30 @@
+{
+  "extName": {
+    "message": "横居英子は英語教師Nano!",
+    "description": "ラノベ風かつローカルAI『Gemini Nano』をかけたトリプル級の神アプリ名"
+  },
+  "extDescription": {
+    "message": "毎朝英語ニュースを読むのが夢だった？日々のニュースで英語力を鍛えたい？英子先生にお任せ！サイドパネルの言語コーチ。100%ローカルで安全動作。",
+    "description": "アプリの概要説明"
+  },
+  "btnCoachMe": {
+    "message": "📖 このページをコーチして！",
+    "description": "サイドパネルでのクイックページコーチングボタンのテキスト"
+  },
+  "btnMoreVocab": {
+    "message": "➕ 単語を追加",
+    "description": "追加の英単語を取得するボタンのテキスト"
+  },
+  "chatPlaceholder": {
+    "message": "英子先生に$LEARN$で何でも聞いてね（$MOTHER$に翻訳します）...",
+    "description": "Q&A入力欄のプレースホルダー",
+    "placeholders": {
+      "learn": {
+        "content": "$1"
+      },
+      "mother": {
+        "content": "$2"
+      }
+    }
+  }
+}

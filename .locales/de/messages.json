@@ -1,0 +1,30 @@
+{
+  "extName": {
+    "message": "Sensei an meiner Seite",
+    "description": "Der Name der Erweiterung"
+  },
+  "extDescription": {
+    "message": "Englische Nachrichten lesen oder dein Englisch mit täglichen News trainieren? Eiko-Sensei ist da!",
+    "description": "Die Beschreibung der Erweiterung"
+  },
+  "btnCoachMe": {
+    "message": "📖 Trainiere mich auf dieser Seite!",
+    "description": "Text für die Quick-Page-Coaching-Schaltfläche"
+  },
+  "btnMoreVocab": {
+    "message": "➕ Mehr Vokabeln",
+    "description": "Text für die Schaltfläche für mehr Vokabeln"
+  },
+  "chatPlaceholder": {
+    "message": "Frag Sensei alles auf $LEARN$ (wird in $MOTHER$ übersetzt)...",
+    "description": "Platzhalter für das Q&A-Eingabefeld",
+    "placeholders": {
+      "learn": {
+        "content": "$1"
+      },
+      "mother": {
+        "content": "$2"
+      }
+    }
+  }
+}

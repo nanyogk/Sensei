@@ -1,0 +1,30 @@
+{
+  "extName": {
+    "message": "Sensei a mi lado",
+    "description": "El nombre de la extensión"
+  },
+  "extDescription": {
+    "message": "¿Soñabas con leer noticias en inglés cada mañana, o entrenar tu inglés con las noticias diarias? ¡Eiko-sensei está aquí!",
+    "description": "La descripción de la extensión"
+  },
+  "btnCoachMe": {
+    "message": "📖 ¡Enséñame esta página!",
+    "description": "Texto para el botón de entrenamiento rápido de la página"
+  },
+  "btnMoreVocab": {
+    "message": "➕ Más Vocabulario",
+    "description": "Texto para el botón de más vocabulario"
+  },
+  "chatPlaceholder": {
+    "message": "Pregúntale a Sensei lo que sea en $LEARN$ (se traducirá a $MOTHER$)...",
+    "description": "Marcador de posición para el campo de entrada de preguntas y respuestas",
+    "placeholders": {
+      "learn": {
+        "content": "$1"
+      },
+      "mother": {
+        "content": "$2"
+      }
+    }
+  }
+}
