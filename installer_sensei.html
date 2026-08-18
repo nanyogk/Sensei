@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sensei Monitor & Synchronizer</title>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      max-width: 650px;
+      margin: 40px auto;
+      padding: 25px;
+      background-color: #fafaf9;
+      color: #292524;
+      border-radius: 10px;
+      border: 1px solid #e7e5e4;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+    h1 { font-size: 20px; margin-bottom: 6px; letter-spacing: -0.5px; }
+    .tagline { color: #78716c; font-size: 13px; margin-top: 0; margin-bottom: 20px; }
+    button {
+      background-color: #15803d;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.15s ease-in-out;
+      font-size: 14px;
+      box-shadow: 0 2px 4px rgba(21, 128, 61, 0.2);
+    }
+    button:hover { opacity: 0.9; }
+    
+    /* Stat Grid */
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      background-color: #f5f5f4;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #57534e;
+      text-transform: uppercase;
+      border: 1px solid #e7e5e4;
+    }
+    #connection-status { color: #059669; }
+    #connection-status.offline { color: #dc2626; }
+
+    /* Observability Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 12px;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e7e5e4;
+    }
+    th {
+      background-color: #fafaf9;
+      padding: 10px 12px;
+      text-align: left;
+      color: #57534e;
+      font-weight: bold;
+      border-bottom: 2px solid #e7e5e4;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.03em;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e7e5e4;
+      font-family: monospace;
+    }
+    tr:last-child td { border-bottom: none; }
+    
+    /* Status tags */
+    .status-tag {
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+    .status-tag.synced { background-color: #d1fae5; color: #065f46; }
+    .status-tag.updating { background-color: #dbeafe; color: #1e40af; }
+    .status-tag.error { background-color: #fee2e2; color: #991b1b; }
+
+    #error-logs {
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      color: #991b1b;
+      font-family: monospace;
+      font-size: 11px;
+      white-space: pre-wrap;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sensei Monitor & Synchronizer 🌐</h1>
+  <p class="tagline">High-observability local File System Access sync dashboard</p>
+  
+  <button id="select-dir-btn">Step 1: Link Local Chromebook Folder 📂</button>
+  
+  <div class="stats-bar">
+    <span>Status: <span id="connection-status">Awaiting link...</span></span>
+    <span>Pulse: <span id="sync-clock">--</span></span>
+  </div>
+
+  <!-- Observability Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>File Name</th>
+        <th>Sync Status</th>
+        <th>File Size</th>
+        <th>Last Updated</th>
+      </tr>
+    </thead>
+    <tbody id="sync-table-body">
+      <tr>
+        <td colspan="4" style="text-align: center; color: #78716c; padding: 15px;">Link your local Sensei directory to populate the monitor list</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div id="error-logs"></div>
+
+  <script>
+    const selectBtn = document.getElementById('select-dir-btn');
+    const statusEl = document.getElementById('connection-status');
+    const clockEl = document.getElementById('sync-clock');
+    const tableBody = document.getElementById('sync-table-body');
+    const errorLogs = document.getElementById('error-logs');
+    
+    let dirHandle = null;
+    
+    const FILES_TO_SYNC = [
+      'manifest.json',
+      'background.js',
+      'side_panel.html',
+      'side_panel.css',
+      'side_panel.js',
+      'ai_client.js',
+      'ui_renderer.js',
+      'state_manager.js',
+      'scraper.js',
+      'chat_handler.js',
+      'vocab_manager.js',
+      'idiom_manager.js',
+      'settings_manager.js',
+      '_locales/de/messages.json',
+      '_locales/en/messages.json',
+      '_locales/es/messages.json',
+      '_locales/fr/messages.json',
+      '_locales/ja/messages.json',
+      '_locales/pt/messages.json',
+      'img/icon16.png',
+      'img/icon32.png',
+      'img/icon48.png',
+      'img/icon128.png'
+    ];
+
+    const BASE_PATH = '';
+    const fileMetadata = {};
+
+    selectBtn.addEventListener('click', async () => {
+      try {
+        dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        statusEl.textContent = 'Active 🟢';
+        statusEl.className = '';
+        selectBtn.textContent = 'Local Folder Linked ✅';
+        selectBtn.style.backgroundColor = '#10b981';
+        
+        // Initialize observer stats in DOM
+        initializeTableRows();
+        startSyncObserver();
+      } catch (err) {
+        statusEl.textContent = 'Error linking folder: ' + err.name;
+        statusEl.className = 'offline';
+      }
+    });
+
+    function initializeTableRows() {
+      tableBody.innerHTML = '';
+      FILES_TO_SYNC.forEach(fileName => {
+        fileMetadata[fileName] = { size: 0, status: 'Pending ⏳', lastUpdated: '--' };
+        
+        const tr = document.createElement('tr');
+        tr.id = `row-${fileName.replace('.', '-')}`;
+        tr.innerHTML = `
+          <td style="font-weight: bold; color: #292524;">${fileName}</td>
+          <td><span class="status-tag updating" id="status-${fileName}">Pending ⏳</span></td>
+          <td id="size-${fileName}">--</td>
+          <td id="time-${fileName}">--</td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    function startSyncObserver() {
+      setInterval(syncObserverIteration, 1500);
+      syncObserverIteration();
+    }
+
+    async function getFileHandleFromPath(rootDirHandle, relativePath) {
+      const parts = relativePath.split('/');
+      let currentDirHandle = rootDirHandle;
+      
+      // Create or traverse subdirectories sequentially
+      for (let i = 0; i < parts.length - 1; i++) {
+        currentDirHandle = await currentDirHandle.getDirectoryHandle(parts[i], { create: true });
+      }
+      
+      const fileName = parts[parts.length - 1];
+      return await currentDirHandle.getFileHandle(fileName, { create: true });
+    }
+
+    async function syncObserverIteration() {
+      if (!dirHandle) return;
+      
+      clockEl.textContent = new Date().toLocaleTimeString();
+      let errorLogText = '';
+
+      for (const fileName of FILES_TO_SYNC) {
+        const statusBadge = document.getElementById(`status-${fileName}`);
+        const sizeCell = document.getElementById(`size-${fileName}`);
+        const timeCell = document.getElementById(`time-${fileName}`);
+
+        try {
+          // CRITICAL FIX: Explicitly inject headers to bypass local proxy & browser caches completely!
+          const response = await fetch(BASE_PATH + fileName + '?t=' + Date.now(), {
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0'
+            }
+          });
+          
+          if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+          
+          let fileContent;
+          if (fileName.endsWith('.png')) {
+            fileContent = await response.blob();
+          } else {
+            fileContent = await response.text();
+          }
+
+          const remoteSize = fileName.endsWith('.png') ? fileContent.size : fileContent.length;
+
+          // If metadata doesn't match local files registry, rewrite!
+          if (fileMetadata[fileName].size !== remoteSize) {
+            statusBadge.className = 'status-tag updating';
+            statusBadge.textContent = 'Syncing... 🔄';
+
+            const fileHandle = await getFileHandleFromPath(dirHandle, fileName);
+            const writable = await fileHandle.createWritable();
+            await writable.write(fileContent);
+            await writable.close();
+
+            fileMetadata[fileName].size = remoteSize;
+            fileMetadata[fileName].lastUpdated = new Date().toLocaleTimeString();
+            
+            statusBadge.className = 'status-tag synced';
+            statusBadge.textContent = 'Synced 🟢';
+            sizeCell.textContent = `${remoteSize} bytes`;
+            timeCell.textContent = fileMetadata[fileName].lastUpdated;
+          } else {
+            statusBadge.className = 'status-tag synced';
+            statusBadge.textContent = 'Synced 🟢';
+            sizeCell.textContent = `${remoteSize} bytes`;
+          }
+        } catch (err) {
+          statusBadge.className = 'status-tag error';
+          statusBadge.textContent = 'Error ❌';
+          sizeCell.textContent = 'Fetch Failed';
+          errorLogText += `[${fileName}] Sync failed: ${err.message}\n`;
+        }
+      }
+
+      if (errorLogText) {
+        errorLogs.textContent = errorLogText;
+        errorLogs.style.display = 'block';
+      } else {
+        errorLogs.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
